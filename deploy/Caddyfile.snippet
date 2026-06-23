@@ -1,0 +1,17 @@
+# Add to /etc/caddy/Caddyfile (the app-layer Caddy that binds to 127.0.0.1 behind the
+# caddy-l4 TLS edge). Mirrors the fetch-mcp pattern EXCEPT we do NOT strip a secret path:
+# the per-person token (/c/<token>/mcp) and owner secret (/owner/<secret>/mcp) must reach
+# the app so it can attribute calls and gate the owner connector. The dashboard (/admin) is
+# password-gated and the API (/api) is cookie-gated, so proxying the whole site is fine.
+#
+# flush_interval -1 disables response buffering — required for the Streamable HTTP transport.
+#
+# IMPORTANT: add this as a NEW site block. Do not modify the existing caddy-l4 /
+# fp.fdosmith.dev configuration.
+
+comprehend.fdosmith.dev {
+	bind 127.0.0.1
+	reverse_proxy 127.0.0.1:8793 {
+		flush_interval -1
+	}
+}

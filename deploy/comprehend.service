@@ -1,0 +1,44 @@
+# systemd unit for comprehend (participant + owner connectors + dashboard).
+# Install to /etc/systemd/system/comprehend.service then:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now comprehend
+#
+# Assumes:
+#   - code synced to /opt/comprehend with a built venv (uv sync --frozen)
+#   - the SPA built to /opt/comprehend/web/dist
+#   - a dedicated, login-less service user "comprehend"
+#   - secrets in /etc/comprehend/env (chmod 600, owned by the service user), see env.example
+#   - SQLite lives in /var/lib/comprehend (StateDirectory below makes + owns it)
+
+[Unit]
+Description=comprehend (knowledge-internalization interviewer connectors + dashboard)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=comprehend
+Group=comprehend
+WorkingDirectory=/opt/comprehend
+EnvironmentFile=/etc/comprehend/env
+ExecStart=/opt/comprehend/.venv/bin/comprehend
+Restart=on-failure
+RestartSec=2
+
+# State dir for the SQLite db: /var/lib/comprehend, created and owned automatically.
+StateDirectory=comprehend
+Environment=HOME=/tmp
+
+# Hardening: this process holds the owner secret, session key, and admin password hash.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ReadWritePaths=/var/lib/comprehend
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+
+[Install]
+WantedBy=multi-user.target
