@@ -92,12 +92,12 @@ def build_participant(store: Store, config: Config) -> FastMCP:
     @mcp.tool
     def submit_result(
         slug: Annotated[str, Field(description="The interview slug")],
-        score: Annotated[float, Field(description="Points earned, graded against the rubric")],
-        max_score: Annotated[float, Field(description="Max points, normally num_questions")],
+        score: Annotated[float, Field(description="Overall quality on a 0-10 scale (mean of your per-question totals)")],
+        max_score: Annotated[float, Field(description="The quality-scale maximum -- always 10")],
         passed: Annotated[bool, Field(description="True if score >= pass_threshold")],
         per_question: Annotated[
             list[dict] | None,
-            Field(description="List of {question, verdict (correct|partial|incorrect), note}"),
+            Field(description="List of {topic, total (0-10), note}; include sub-answer scores if useful"),
         ] = None,
         summary: Annotated[
             dict | None,

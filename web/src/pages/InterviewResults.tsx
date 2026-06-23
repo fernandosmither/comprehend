@@ -103,7 +103,7 @@ export function InterviewResults() {
 
       <div className="row" style={{ marginTop: 22, justifyContent: "space-between" }}>
         <span className="faint" style={{ fontSize: "0.85rem" }}>
-          Pass mark: {interview.pass_threshold} / {interview.num_questions}
+          Pass mark: {interview.pass_threshold} / 10 mean quality · ~{interview.num_questions} questions
         </span>
         <div style={{ width: 200 }}>
           <Bar value={stats.pass_rate} />

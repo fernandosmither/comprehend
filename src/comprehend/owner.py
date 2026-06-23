@@ -53,8 +53,8 @@ def build_owner(store: Store, config: Config) -> FastMCP:
         seed_questions: Annotated[
             list[str] | None, Field(description="Optional starter questions (Claude still varies them)")
         ] = None,
-        pass_threshold: Annotated[int, Field(description="Points needed to pass")] = 7,
-        num_questions: Annotated[int, Field(description="Target number of questions")] = 10,
+        pass_threshold: Annotated[int, Field(description="Pass bar on the 0-10 quality scale (mean per-question total); default 7")] = 7,
+        num_questions: Annotated[int, Field(description="Target number of questions to ask for coverage; default 10")] = 10,
     ) -> dict:
         """Create a new interview as a draft. Publish it with set_status when ready.
 

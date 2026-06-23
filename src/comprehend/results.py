@@ -39,7 +39,7 @@ def interview_results(store: Store, interview: dict) -> dict:
             "email": person.get("email"),
             "attempts": len(done),
             "best_score": best,
-            "max_score": interview["num_questions"],
+            "max_score": (done[0]["max_score"] if done and done[0]["max_score"] else 10),
             "passed": passed,
             "last_activity": last["submitted_at"] or last["started_at"],
             "last_summary": (done[0]["summary"] if done else None),
