@@ -112,6 +112,13 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 40px 24px 80px; width: 1
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; color: var(--ink); }
 .field .hint { font-size: 0.78rem; color: var(--faint); font-weight: 400; letter-spacing: 0; }
+.req-tag {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase;
+  font-weight: 600; padding: 1px 6px; border-radius: 4px; margin-left: 8px; vertical-align: 1px;
+}
+.req-tag.required { color: var(--green-deep); background: var(--green-tint); }
+.req-tag.recommended { color: var(--muted); background: var(--surface-2); }
+.req-tag.optional { color: var(--faint); background: transparent; border: 1px solid var(--line); }
 input[type="text"], input[type="password"], input[type="email"], input[type="number"], textarea, select {
   font-family: var(--sans); font-size: 0.95rem; color: var(--ink);
   background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-sm);

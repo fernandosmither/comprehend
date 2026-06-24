@@ -112,32 +112,64 @@ export function InterviewEdit() {
 
       <form className="stack" onSubmit={save} style={{ marginTop: 18 }}>
         <div className="card card-pad stack">
-          <Field label="Title">
-            <input type="text" value={form.title} onChange={(e) => set("title", e.target.value)} required />
+          <Field label="Title" req="required">
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="e.g. METR Frontier Risk Report (May 2026)"
+              required
+            />
           </Field>
-          <Field label="Description" hint="One line shown to participants when they list interviews.">
-            <input type="text" value={form.description} onChange={(e) => set("description", e.target.value)} />
+          <Field label="Description" req="optional" hint="One line shown to participants when they list interviews.">
+            <input
+              type="text"
+              value={form.description}
+              onChange={(e) => set("description", e.target.value)}
+              placeholder="e.g. Deep read of METR's frontier risk report — exec summary through the control gap."
+            />
           </Field>
         </div>
 
         <div className="card card-pad stack">
-          <Field label="Material" hint="The source content to internalize (markdown).">
-            <textarea className="material" value={form.material} onChange={(e) => set("material", e.target.value)} rows={10} />
+          <Field label="Material" req="recommended" hint="Source content to internalize (markdown). Topic-only interviews can skip this if your takes carry the substance.">
+            <textarea
+              className="material"
+              value={form.material}
+              onChange={(e) => set("material", e.target.value)}
+              rows={10}
+              placeholder="Paste the report / post / docs here…"
+            />
           </Field>
-          <Field label="Your takes" hint="The opinionated framing & cruxes the interview should center on.">
-            <textarea value={form.takes} onChange={(e) => set("takes", e.target.value)} rows={5} />
+          <Field label="Your takes" req="recommended" hint="The opinionated framing & cruxes to center on — what people most misunderstand, where you disagree with the consensus.">
+            <textarea
+              value={form.takes}
+              onChange={(e) => set("takes", e.target.value)}
+              rows={5}
+              placeholder="e.g. The exec summary undersells loss-of-control risk. The real crux is whether oversight scales sublinearly with capability…"
+            />
           </Field>
-          <Field label="Rubric" hint="The key points understanding is graded against.">
-            <textarea value={form.rubric} onChange={(e) => set("rubric", e.target.value)} rows={4} />
+          <Field label="Rubric" req="optional" hint="Topic-specific points to grade against. If blank, Claude grades off the material + your takes using the standard 0–10 rubric.">
+            <textarea
+              value={form.rubric}
+              onChange={(e) => set("rubric", e.target.value)}
+              rows={4}
+              placeholder="e.g. 1) states the capability-vs-control gap precisely  2) explains why evals lag  3) can steelman the optimistic view"
+            />
           </Field>
-          <Field label="Always probe" hint="Anything every participant should always be pushed on.">
-            <input type="text" value={form.always_probe} onChange={(e) => set("always_probe", e.target.value)} />
+          <Field label="Always probe" req="optional" hint="Anything every participant must be pushed on, regardless of topic.">
+            <input
+              type="text"
+              value={form.always_probe}
+              onChange={(e) => set("always_probe", e.target.value)}
+              placeholder="e.g. Make them steelman the view they disagree with before accepting an answer."
+            />
           </Field>
         </div>
 
         <div className="card card-pad stack">
           <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
-            <Field label="Questions" hint="Target count.">
+            <Field label="Questions" hint="Target count to ask. Default 10.">
               <input
                 type="number"
                 min={1}
@@ -145,7 +177,7 @@ export function InterviewEdit() {
                 onChange={(e) => set("num_questions", Number(e.target.value))}
               />
             </Field>
-            <Field label="Pass threshold" hint="Points needed to pass.">
+            <Field label="Pass threshold" hint="Pass at this mean score on the 0–10 scale. Default 7.">
               <input
                 type="number"
                 min={1}
@@ -154,10 +186,10 @@ export function InterviewEdit() {
               />
             </Field>
           </div>
-          <Field label="Seed questions" hint="Optional, one per line. Claude still varies them.">
+          <Field label="Seed questions" req="optional" hint="Starter openers, one per line. Claude still varies them.">
             <textarea value={seedText} onChange={(e) => setSeedText(e.target.value)} rows={4} />
           </Field>
-          <Field label="Conduct override" hint="Leave blank to use the default Socratic conduct guide.">
+          <Field label="Conduct override" req="optional" hint="Leave blank to use the default conduct guide (Buck's question + 0–10 grading rules).">
             <textarea
               value={form.conduct_instructions ?? ""}
               onChange={(e) => set("conduct_instructions", e.target.value)}
@@ -179,11 +211,22 @@ export function InterviewEdit() {
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  req,
+  hint,
+  children,
+}: {
+  label: string;
+  req?: "required" | "recommended" | "optional";
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="field">
       <label>
         {label}
+        {req && <span className={`req-tag ${req}`}>{req}</span>}
         {hint && <span className="hint"> — {hint}</span>}
       </label>
       {children}
