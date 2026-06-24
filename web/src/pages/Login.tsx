@@ -24,7 +24,7 @@ export function Login({ onAuthed }: { onAuthed: () => void }) {
     <div className="gate">
       <form className="card card-pad gate-card rise" onSubmit={submit}>
         <div className="seal">C</div>
-        <span className="eyebrow">The examination room</span>
+        <span className="eyebrow">Redwood Research</span>
         <h1>comprehend</h1>
         <p className="sub">Sign the register to review interviews and how your people are doing.</p>
         <div className="stack">

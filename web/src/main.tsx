@@ -1,7 +1,6 @@
-import "@fontsource-variable/fraunces";
-import "@fontsource-variable/hanken-grotesk";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/700.css";
+import "@fontsource-variable/plus-jakarta-sans";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
 import "./styles.css";
 
 import { StrictMode } from "react";
