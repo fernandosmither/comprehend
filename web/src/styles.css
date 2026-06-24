@@ -127,7 +127,7 @@ textarea.material { font-family: var(--mono); font-size: 0.85rem; }
 table { width: 100%; border-collapse: collapse; }
 thead th {
   text-align: left; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--faint); font-weight: 600; padding: 0 14px 11px; border-bottom: 1px solid var(--line-strong);
+  color: var(--faint); font-weight: 600; padding: 14px 14px 12px; border-bottom: 1px solid var(--line-strong);
 }
 tbody td { padding: 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 tbody tr:last-child td { border-bottom: none; }
