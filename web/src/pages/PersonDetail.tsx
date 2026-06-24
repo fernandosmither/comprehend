@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, type PersonHistory } from "../api";
-import { CopyField, ErrorBanner, PassPill, Spinner, asLines, fmtDate, fmtDuration } from "../ui";
+import { CopyField, DateStamp, ErrorBanner, PassPill, Spinner, asLines, fmtDuration } from "../ui";
 
 export function PersonDetail() {
   const { id } = useParams();
@@ -70,7 +70,7 @@ export function PersonDetail() {
                     {h.score === null ? "—" : `${h.score}/${h.max_score}`}
                   </span>
                   <span>{fmtDuration(h.time_spent_seconds)}</span>
-                  <span>{fmtDate(h.submitted_at ?? h.started_at)}</span>
+                  <DateStamp iso={h.submitted_at ?? h.started_at} />
                 </div>
               </div>
               {h.summary && (

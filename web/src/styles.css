@@ -181,6 +181,21 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
 .empty h3 { color: var(--muted); margin-bottom: 6px; }
 .error-banner { background: var(--fail-tint); border: 1px solid var(--fail); color: var(--fail); padding: 10px 14px; border-radius: var(--r-sm); font-size: 0.88rem; }
 .backlink { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* date with reveal-exact-time on hover (desktop) / tap (mobile) */
+.datestamp { position: relative; cursor: pointer; border-bottom: 1px dotted var(--line-strong); outline: none; }
+.datestamp:hover, .datestamp:focus-visible { border-bottom-color: var(--green); }
+.datestamp-pop {
+  display: none; position: absolute; bottom: calc(100% + 7px); right: 0; z-index: 40;
+  white-space: nowrap; background: var(--ink); color: #fff;
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0; text-transform: none;
+  padding: 5px 9px; border-radius: 6px; box-shadow: var(--shadow);
+}
+.datestamp-pop::after {
+  content: ""; position: absolute; top: 100%; right: 13px;
+  border: 5px solid transparent; border-top-color: var(--ink);
+}
+.datestamp:hover .datestamp-pop, .datestamp:focus-visible .datestamp-pop, .datestamp.open .datestamp-pop { display: block; }
 .divider { height: 1px; background: var(--line); margin: 4px 0; }
 .note-card { background: var(--green-tint); border-left: 3px solid var(--green); padding: 14px 16px; border-radius: 0 var(--r-sm) var(--r-sm) 0; font-size: 0.92rem; }
 

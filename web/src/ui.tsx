@@ -103,6 +103,44 @@ export function fmtDate(iso: string | null): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
+export function fmtDateTime(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+}
+
+// A short date that reveals the exact timestamp: hover (desktop) or tap (mobile).
+export function DateStamp({ iso }: { iso: string | null }) {
+  const [open, setOpen] = useState(false);
+  if (!iso) return <span className="faint">—</span>;
+  return (
+    <span
+      className={`datestamp${open ? " open" : ""}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => setOpen((o) => !o)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setOpen((o) => !o);
+        } else if (e.key === "Escape") {
+          setOpen(false);
+        }
+      }}
+      onBlur={() => setOpen(false)}
+    >
+      {fmtDate(iso)}
+      <span className="datestamp-pop">{fmtDateTime(iso)}</span>
+    </span>
+  );
+}
+
 export function asLines(v: string | string[] | undefined): string {
   if (!v) return "";
   return Array.isArray(v) ? v.join("; ") : v;

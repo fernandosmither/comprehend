@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, type ResultsDetail } from "../api";
-import { ErrorBanner, PassPill, Spinner, Stat, StatusPill, asLines, fmtDate, fmtDuration } from "../ui";
+import { DateStamp, ErrorBanner, PassPill, Spinner, Stat, StatusPill, asLines, fmtDuration } from "../ui";
 
 export function InterviewResults() {
   const { slug } = useParams();
@@ -90,7 +90,7 @@ export function InterviewResults() {
                   <td className="num">{p.attempts}</td>
                   <td className="num">{fmtDuration(p.last_time_spent_seconds)}</td>
                   <td className="faint mono" style={{ fontSize: "0.8rem" }}>
-                    {fmtDate(p.last_activity)}
+                    <DateStamp iso={p.last_activity} />
                   </td>
                 </tr>
               ))}
