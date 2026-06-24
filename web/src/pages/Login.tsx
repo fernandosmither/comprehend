@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { api, ApiError } from "../api";
-import { ErrorBanner } from "../ui";
+import { ErrorBanner, Mark } from "../ui";
 
 export function Login({ onAuthed }: { onAuthed: () => void }) {
   const [password, setPassword] = useState("");
@@ -23,10 +23,10 @@ export function Login({ onAuthed }: { onAuthed: () => void }) {
   return (
     <div className="gate">
       <form className="card card-pad gate-card rise" onSubmit={submit}>
-        <div className="seal">C</div>
+        <div className="seal"><Mark height={46} color="#1d4b38" /></div>
         <span className="eyebrow">Redwood Research</span>
         <h1>comprehend</h1>
-        <p className="sub">Sign the register to review interviews and how your people are doing.</p>
+        <p className="sub">Sign in to review interviews and how your people are doing.</p>
         <div className="stack">
           {error && <ErrorBanner message={error} />}
           <div className="field" style={{ textAlign: "left" }}>
@@ -37,7 +37,6 @@ export function Login({ onAuthed }: { onAuthed: () => void }) {
               autoFocus
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
             />
           </div>
           <button className="btn btn--accent" type="submit" disabled={busy || !password}>

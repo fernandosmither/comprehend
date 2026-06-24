@@ -28,7 +28,7 @@ export function PersonDetail() {
           <h1 style={{ marginTop: 8 }}>{person.name}</h1>
           {person.email && <p>{person.email}</p>}
         </div>
-        {!person.active && <span className="pill fail">disabled</span>}
+        {!person.active && <span className="pill draft">disabled</span>}
       </div>
 
       <div className="stack" style={{ marginBottom: 26 }}>

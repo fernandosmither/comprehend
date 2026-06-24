@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, type ResultsDetail } from "../api";
-import { Bar, ErrorBanner, PassPill, Spinner, Stat, StatusPill, asLines, fmtDate, fmtDuration } from "../ui";
+import { ErrorBanner, PassPill, Spinner, Stat, StatusPill, asLines, fmtDate, fmtDuration } from "../ui";
 
 export function InterviewResults() {
   const { slug } = useParams();
@@ -38,10 +38,10 @@ export function InterviewResults() {
 
       <div className="statgrid" style={{ marginBottom: 28 }}>
         <Stat value={stats.participants} label="Participants" />
-        <Stat value={stats.passed} label="Passed" />
         <Stat
           value={stats.pass_rate === null ? "—" : `${Math.round(stats.pass_rate * 100)}%`}
           label="Pass rate"
+          sub={`${stats.passed} of ${stats.participants} passed`}
         />
         <Stat
           value={stats.avg_score_pct === null ? "—" : `${Math.round(stats.avg_score_pct * 100)}%`}
@@ -77,10 +77,8 @@ export function InterviewResults() {
                     <Link to={`/people/${p.person_id}`} className="row-title">
                       {p.name}
                     </Link>
-                    {p.last_summary && (
-                      <div className="row-sub">
-                        {asLines(p.last_summary.confusions) ? `struggled: ${asLines(p.last_summary.confusions)}` : ""}
-                      </div>
+                    {p.last_summary && asLines(p.last_summary.confusions) && (
+                      <div className="row-sub">{asLines(p.last_summary.confusions)}</div>
                     )}
                   </td>
                   <td>
@@ -101,13 +99,10 @@ export function InterviewResults() {
         </div>
       )}
 
-      <div className="row" style={{ marginTop: 22, justifyContent: "space-between" }}>
+      <div className="row" style={{ marginTop: 20 }}>
         <span className="faint" style={{ fontSize: "0.85rem" }}>
           Pass mark: {interview.pass_threshold} / 10 mean quality · ~{interview.num_questions} questions
         </span>
-        <div style={{ width: 200 }}>
-          <Bar value={stats.pass_rate} />
-        </div>
       </div>
     </>
   );

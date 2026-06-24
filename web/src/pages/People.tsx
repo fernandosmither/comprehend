@@ -110,7 +110,7 @@ export function People() {
                     {p.active ? (
                       <span className="pill pass">active</span>
                     ) : (
-                      <span className="pill fail">disabled</span>
+                      <span className="pill draft">disabled</span>
                     )}
                   </td>
                   <td className="num">

@@ -17,7 +17,7 @@ export function Interviews() {
         <div>
           <span className="eyebrow">Registry</span>
           <h1>Interviews</h1>
-          <p>Material you want internalized. Author from your own Claude via the owner connector, or here.</p>
+          <p>Material you want people to internalize. Create one here, or author it from your own Claude via the owner connector.</p>
         </div>
         <Link className="btn btn--accent" to="/interviews/new">
           + New interview

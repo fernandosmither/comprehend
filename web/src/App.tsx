@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import { api } from "./api";
+import { Mark } from "./ui";
 import { Login } from "./pages/Login";
 import { Interviews } from "./pages/Interviews";
 import { InterviewEdit } from "./pages/InterviewEdit";
@@ -45,7 +46,8 @@ function Layout({ onLogout }: { onLogout: () => void }) {
       <header className="masthead">
         <div className="masthead-inner">
           <span className="wordmark">
-            comprehend<span className="dot">.</span>
+            <Mark height={21} color="#1d4b38" />
+            <span className="wordmark-text">comprehend</span>
           </span>
           <nav>
             <NavLink to="/" end className={({ isActive }) => `navlink ${isActive ? "active" : ""}`}>
