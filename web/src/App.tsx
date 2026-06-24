@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { api } from "./api";
 import { Mark } from "./ui";
 import { Login } from "./pages/Login";
@@ -8,6 +8,7 @@ import { InterviewEdit } from "./pages/InterviewEdit";
 import { InterviewResults } from "./pages/InterviewResults";
 import { People } from "./pages/People";
 import { PersonDetail } from "./pages/PersonDetail";
+import { Feedback } from "./pages/Feedback";
 
 type Auth = boolean | null; // null = still checking
 
@@ -33,6 +34,7 @@ export function App() {
         <Route path="interviews/:slug/edit" element={<InterviewEdit />} />
         <Route path="people" element={<People />} />
         <Route path="people/:id" element={<PersonDetail />} />
+        <Route path="feedback" element={<Feedback />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -41,20 +43,34 @@ export function App() {
 
 function Layout({ onLogout }: { onLogout: () => void }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    const refresh = () => api.feedbackCount().then(setUnread).catch(() => {});
+    refresh();
+    window.addEventListener("feedback-changed", refresh);
+    return () => window.removeEventListener("feedback-changed", refresh);
+  }, [location.pathname]);
+
   return (
     <div className="shell">
       <header className="masthead">
         <div className="masthead-inner">
-          <span className="wordmark">
+          <Link to="/" className="wordmark" aria-label="comprehend home">
             <Mark height={21} color="#1d4b38" />
             <span className="wordmark-text">comprehend</span>
-          </span>
+          </Link>
           <nav>
             <NavLink to="/" end className={({ isActive }) => `navlink ${isActive ? "active" : ""}`}>
               Interviews
             </NavLink>
             <NavLink to="/people" className={({ isActive }) => `navlink ${isActive ? "active" : ""}`}>
               People
+            </NavLink>
+            <NavLink to="/feedback" className={({ isActive }) => `navlink ${isActive ? "active" : ""}`}>
+              Feedback
+              {unread > 0 && <span className="nav-badge">{unread}</span>}
             </NavLink>
           </nav>
           <div className="spacer" />

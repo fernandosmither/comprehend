@@ -15,7 +15,7 @@ from typing import Any
 
 from .security import generate_token
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _SCHEMA = """
 CREATE TABLE interviews (
@@ -76,6 +76,24 @@ CREATE INDEX idx_events_ts ON events(ts);
 CREATE INDEX idx_events_person ON events(person_id);
 """
 
+# v2: participant pushback/feedback for the owner to review later. Additive — applied on top
+# of v1 so the live prod DB upgrades without touching existing rows.
+_SCHEMA_V2 = """
+CREATE TABLE feedback (
+    id INTEGER PRIMARY KEY,
+    person_id INTEGER NOT NULL REFERENCES people(id),
+    interview_id INTEGER NOT NULL REFERENCES interviews(id),
+    body TEXT NOT NULL,
+    context TEXT,
+    reviewed INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX idx_feedback_reviewed ON feedback(reviewed);
+CREATE INDEX idx_feedback_interview ON feedback(interview_id);
+CREATE INDEX idx_feedback_person ON feedback(person_id);
+"""
+
 _INTERVIEW_JSON = ("seed_questions",)
 _ATTEMPT_JSON = ("per_question", "summary")
 
@@ -103,8 +121,12 @@ class Store:
             version = self._conn.execute("PRAGMA user_version").fetchone()[0]
             if version < 1:
                 self._conn.executescript(_SCHEMA)
-                self._conn.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
-                self._conn.commit()
+                version = 1
+            if version < 2:
+                self._conn.executescript(_SCHEMA_V2)
+                version = 2
+            self._conn.execute(f"PRAGMA user_version={version}")
+            self._conn.commit()
 
     def close(self) -> None:
         with self._lock:
@@ -337,6 +359,52 @@ class Store:
             )
             self._conn.commit()
 
+    # --- feedback ---------------------------------------------------------------------
+    def add_feedback(self, person_id: int, interview_id: int, body: str, context: str | None) -> dict:
+        ts = now_iso()
+        with self._lock:
+            cur = self._conn.execute(
+                "INSERT INTO feedback (person_id, interview_id, body, context, created_at) "
+                "VALUES (?,?,?,?,?)",
+                (person_id, interview_id, body, context, ts),
+            )
+            self._conn.commit()
+            row = self._conn.execute(
+                "SELECT * FROM feedback WHERE id=?", (cur.lastrowid,)
+            ).fetchone()
+        return _feedback(row)
+
+    def list_feedback(self, reviewed: bool | None = None) -> list[dict]:
+        """Feedback joined with person name + interview title/slug, unreviewed first, newest first."""
+        sql = (
+            "SELECT f.*, p.name AS person_name, i.title AS interview_title, i.slug AS interview_slug "
+            "FROM feedback f "
+            "JOIN people p ON p.id = f.person_id "
+            "JOIN interviews i ON i.id = f.interview_id"
+        )
+        params: tuple = ()
+        if reviewed is not None:
+            sql += " WHERE f.reviewed=?"
+            params = (1 if reviewed else 0,)
+        sql += " ORDER BY f.reviewed ASC, f.created_at DESC"
+        with self._lock:
+            rows = self._conn.execute(sql, params).fetchall()
+        return [_feedback(r) for r in rows]
+
+    def set_feedback_reviewed(self, feedback_id: int, reviewed: bool) -> None:
+        with self._lock:
+            self._conn.execute(
+                "UPDATE feedback SET reviewed=? WHERE id=?", (1 if reviewed else 0, feedback_id)
+            )
+            self._conn.commit()
+
+    def unreviewed_feedback_count(self) -> int:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT COUNT(*) FROM feedback WHERE reviewed=0"
+            ).fetchone()
+        return int(row[0])
+
 
 # --- row -> dict converters -----------------------------------------------------------
 def _interview(row: sqlite3.Row | None) -> dict | None:
@@ -351,6 +419,12 @@ def _interview(row: sqlite3.Row | None) -> dict | None:
 def _person(row: sqlite3.Row) -> dict:
     d = dict(row)
     d["active"] = bool(d["active"])
+    return d
+
+
+def _feedback(row: sqlite3.Row) -> dict:
+    d = dict(row)
+    d["reviewed"] = bool(d["reviewed"])
     return d
 
 

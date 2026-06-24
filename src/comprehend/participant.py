@@ -143,6 +143,40 @@ def build_participant(store: Store, config: Config) -> FastMCP:
             ),
         }
 
+    @mcp.tool
+    def send_feedback(
+        slug: Annotated[str, Field(description="The interview slug this pushback is about")],
+        body: Annotated[
+            str, Field(description="The participant's pushback/argument, relayed faithfully in their words")
+        ],
+        context: Annotated[
+            str | None,
+            Field(description="What it concerns: the question or rubric point, and how the interview/you graded or framed it"),
+        ] = None,
+    ) -> dict:
+        """Forward the participant's pushback to the interview's owner for manual review later.
+
+        ONLY use this after the participant has pushed back STRONGLY and seems genuinely confident
+        the interview, rubric, or your grade is wrong -- and only once they have explicitly said yes
+        to sending it. Never bring this up on your own. It does NOT change their grade: keep grading
+        by the current interview's rubric. Relay their argument faithfully even if you disagree.
+        """
+        person = _require_person()
+        interview = store.get_interview(slug)
+        if not interview:
+            raise ToolError(f"No interview named {slug!r}.")
+        fb = store.add_feedback(
+            person["id"], interview["id"],
+            body=body.strip(),
+            context=(context.strip() if context else None),
+        )
+        store.log_event("feedback", person_id=person["id"], interview_id=interview["id"],
+                        meta={"feedback_id": fb["id"]})
+        return {
+            "ok": True,
+            "message": "Sent to the interview's owner to review later. This does not change your grade.",
+        }
+
     return mcp
 
 

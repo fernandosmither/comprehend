@@ -84,6 +84,17 @@ async def main() -> None:
                development="more time on sections 2 and 4 before retrying",
                profile="Curious and engaged; still building the core vocabulary.")
 
+    # one piece of pushback, for the Feedback page
+    async with Client(links["Anna Reyes"]) as pc:
+        await pc.call_tool("send_feedback", {
+            "slug": slug,
+            "body": ("I think the rubric is too harsh on untrusted monitoring. With paraphrasing "
+                     "plus upfront honeypotting of the monitor, it's competitive with trusted "
+                     "monitoring on the safety-usefulness frontier, not strictly worse — so docking "
+                     "me for defending it seems wrong."),
+            "context": "Control-protocols set; I was marked down for arguing untrusted monitoring is viable.",
+        })
+
     print("seeded.")
 
 

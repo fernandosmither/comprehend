@@ -160,4 +160,28 @@ def build_owner(store: Store, config: Config) -> FastMCP:
             raise ToolError(f"No interview named {slug!r}.")
         return interview_results(store, interview)
 
+    @mcp.tool
+    def get_feedback(
+        slug: Annotated[
+            str | None, Field(description="Filter to one interview's feedback; omit for all")
+        ] = None,
+        include_reviewed: Annotated[
+            bool, Field(description="Include already-reviewed items (default: only unreviewed)")
+        ] = False,
+    ) -> dict:
+        """Read participant pushback/feedback awaiting your review. Each item is a disagreement a
+        participant felt strongly enough to forward; it never changed their grade."""
+        items = store.list_feedback(reviewed=None if include_reviewed else False)
+        if slug is not None:
+            items = [f for f in items if f["interview_slug"] == slug]
+        return {"feedback": items, "unreviewed": store.unreviewed_feedback_count()}
+
+    @mcp.tool
+    def mark_feedback_reviewed(
+        feedback_id: Annotated[int, Field(description="The feedback id from get_feedback")],
+    ) -> dict:
+        """Mark a feedback item as reviewed so it drops off the unreviewed list."""
+        store.set_feedback_reviewed(feedback_id, True)
+        return {"ok": True, "unreviewed": store.unreviewed_feedback_count()}
+
     return mcp

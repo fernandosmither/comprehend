@@ -113,6 +113,19 @@ export type InterviewInput = Partial<Omit<Interview, "created_at" | "updated_at"
   title: string;
 };
 
+export interface Feedback {
+  id: number;
+  person_id: number;
+  person_name: string;
+  interview_id: number;
+  interview_title: string;
+  interview_slug: string;
+  body: string;
+  context: string | null;
+  reviewed: boolean;
+  created_at: string;
+}
+
 export const api = {
   me: () => req<{ authenticated: boolean }>("/api/me"),
   login: (password: string) => req<{ ok: true }>("/api/login", { method: "POST", ...body({ password }) }),
@@ -136,4 +149,9 @@ export const api = {
   setPersonActive: (id: number, active: boolean) =>
     req<{ ok: true }>(`/api/people/${id}/active`, { method: "POST", ...body({ active }) }),
   getPerson: (id: number) => req<PersonHistory>(`/api/people/${id}`),
+
+  listFeedback: () => req<{ feedback: Feedback[] }>("/api/feedback").then((r) => r.feedback),
+  feedbackCount: () => req<{ unreviewed: number }>("/api/feedback/count").then((r) => r.unreviewed),
+  setFeedbackReviewed: (id: number, reviewed: boolean) =>
+    req<{ ok: true }>(`/api/feedback/${id}/reviewed`, { method: "POST", ...body({ reviewed }) }),
 };

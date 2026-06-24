@@ -146,6 +146,22 @@ def build_admin_routes(store: Store, config: Config) -> list[Route]:
         data["person"]["connector_url"] = config.participant_url(person["token"])
         return JSONResponse(data)
 
+    async def list_feedback(request: Request) -> JSONResponse:
+        _require(request)
+        param = request.query_params.get("reviewed")
+        reviewed = None if param is None else param.lower() in ("1", "true", "yes")
+        return JSONResponse({"feedback": store.list_feedback(reviewed=reviewed)})
+
+    async def feedback_count(request: Request) -> JSONResponse:
+        _require(request)
+        return JSONResponse({"unreviewed": store.unreviewed_feedback_count()})
+
+    async def set_feedback_reviewed(request: Request) -> JSONResponse:
+        _require(request)
+        body = await _json(request)
+        store.set_feedback_reviewed(int(request.path_params["fid"]), bool(body.get("reviewed", True)))
+        return JSONResponse({"ok": True})
+
     return [
         Route("/api/login", login, methods=["POST"]),
         Route("/api/logout", logout, methods=["POST"]),
@@ -160,6 +176,9 @@ def build_admin_routes(store: Store, config: Config) -> list[Route]:
         Route("/api/people", create_person, methods=["POST"]),
         Route("/api/people/{pid}", get_person, methods=["GET"]),
         Route("/api/people/{pid}/active", set_person_active, methods=["POST"]),
+        Route("/api/feedback", list_feedback, methods=["GET"]),
+        Route("/api/feedback/count", feedback_count, methods=["GET"]),
+        Route("/api/feedback/{fid}/reviewed", set_feedback_reviewed, methods=["POST"]),
     ]
 
 

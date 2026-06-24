@@ -103,6 +103,15 @@ async def drive(base: str) -> None:
         })).data
         assert r2["passed"] is True
 
+        # participant pushes back hard and asks to forward it (never changes the grade)
+        fb = (await pc.call_tool("send_feedback", {
+            "slug": slug,
+            "body": "The rubric treats untrusted monitoring as strictly worse, but with paraphrasing it's competitive.",
+            "context": "Q on control protocols; I was marked down for defending untrusted monitoring.",
+        })).data
+        assert fb["ok"] is True and "does not change your grade" in fb["message"], fb
+        print("feedback sent")
+
         listing2 = (await pc.call_tool("list_interviews", {})).data
         assert any(i["slug"] == slug and i["already_passed"] for i in listing2), listing2
 
@@ -115,6 +124,19 @@ async def drive(base: str) -> None:
         assert stats["passed"] == 1
         assert res["participants"][0]["name"] == "Anna"
         print("owner results stats:", stats)
+
+        # feedback: read via owner, mark reviewed
+        fbres = (await oc.call_tool("get_feedback", {})).data
+        assert fbres["unreviewed"] == 1 and len(fbres["feedback"]) == 1, fbres
+        item = fbres["feedback"][0]
+        assert item["person_name"] == "Anna" and item["interview_slug"] == slug, item
+        fid = item["id"]
+        mk = (await oc.call_tool("mark_feedback_reviewed", {"feedback_id": fid})).data
+        assert mk["unreviewed"] == 0, mk
+        assert (await oc.call_tool("get_feedback", {})).data["feedback"] == []
+        reviewed_items = (await oc.call_tool("get_feedback", {"include_reviewed": True})).data["feedback"]
+        assert len(reviewed_items) == 1 and reviewed_items[0]["reviewed"] is True
+        print("owner feedback ok; fid:", fid)
 
     # --- owner secret gating: wrong secret -> 403 -----------------------------------
     async with httpx.AsyncClient() as h:
@@ -140,6 +162,16 @@ async def drive(base: str) -> None:
         hist = (await h.get(f"/api/people/{people[0]['id']}")).json()
         assert len(hist["history"]) == 2
         print("admin API ok; person history len:", len(hist["history"]))
+
+        # feedback API: it's reviewed now (owner marked it); flip it back and forth
+        assert (await h.get("/api/feedback/count")).json()["unreviewed"] == 0
+        fb_list = (await h.get("/api/feedback")).json()["feedback"]
+        assert len(fb_list) == 1 and fb_list[0]["reviewed"] is True, fb_list
+        await h.post(f"/api/feedback/{fid}/reviewed", json={"reviewed": False})
+        assert (await h.get("/api/feedback/count")).json()["unreviewed"] == 1
+        unrev = (await h.get("/api/feedback?reviewed=false")).json()["feedback"]
+        assert len(unrev) == 1 and unrev[0]["id"] == fid, unrev
+        print("admin feedback API ok")
 
     print("E2E PASSED")
 
